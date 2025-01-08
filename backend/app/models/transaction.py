@@ -15,3 +15,5 @@ class Transaction(Base):
     amount = Column(Numeric(10, 2), nullable=False)
     transaction_date = Column(TIMESTAMP, server_default=func.now())
     description = Column(String(255))
+    
+    user = relationship("User", back_populates="transactions")

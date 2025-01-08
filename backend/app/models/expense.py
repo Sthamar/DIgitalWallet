@@ -15,3 +15,5 @@ class Expense(Base):
     amount = Column(Numeric(10, 2), nullable=False)
     expense_date = Column(TIMESTAMP, server_default=func.now())
     created_at = Column(TIMESTAMP, server_default=func.now())
+    
+    user = relationship("User", back_populates="expenses")
