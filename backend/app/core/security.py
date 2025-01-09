@@ -1,6 +1,10 @@
 from passlib.context import CryptContext
 import re
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, Depends
+from sqlalchemy.orm import Session
+from database import get_db
+from models.users import User
+from oauth2 import get_current_user
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated = 'auto')
 
@@ -24,3 +28,14 @@ def validate_password(password: str):
     if not re.search(r'[!@#$%^&*(),.?":{}|<>]', password):
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Password must contain at least one special character.")
     return True
+
+
+def role_required(required_role: str):
+    def wrapper(current_user: User = Depends(get_current_user), db:Session = Depends(get_db)):
+        if current_user.role != required_role:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"user role '{current_user.role}' does not have access to this"
+            )
+        return current_user
+    return wrapper
