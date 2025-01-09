@@ -20,5 +20,8 @@ class UserOut(BaseModel):
     
 class UserUpdate(BaseModel):
     username: str
-    email: EmailStr
+    role: str
     
+class PasswordUpdate(BaseModel):
+    current_password: str
+    new_password: str

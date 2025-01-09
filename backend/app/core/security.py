@@ -30,9 +30,9 @@ def validate_password(password: str):
     return True
 
 
-def role_required(required_role: str):
+def role_required(required_role: list[str]):
     def wrapper(current_user: User = Depends(get_current_user), db:Session = Depends(get_db)):
-        if current_user.role != required_role:
+        if current_user.role not in required_role:
             raise HTTPException(
                 status_code=status.HTTP_403_FORBIDDEN,
                 detail=f"user role '{current_user.role}' does not have access to this"
