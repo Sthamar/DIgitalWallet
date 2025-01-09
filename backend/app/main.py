@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes.users import router
+from routes import users, auth
 
 app = FastAPI()
 
@@ -7,4 +7,6 @@ app = FastAPI()
 def welcome():
     return {"message": 'welcome to digital wallet'}
 
-app.include_router(router)
+app.include_router(users.router)
+app.include_router(auth.router)
+
