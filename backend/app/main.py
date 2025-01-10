@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routes import users, auth
+from routes import users, auth, budgetCategory
 
 app = FastAPI()
 
@@ -9,4 +9,5 @@ def welcome():
 
 app.include_router(users.router)
 app.include_router(auth.router)
+app.include_router(budgetCategory.router)
 
