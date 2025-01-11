@@ -4,7 +4,7 @@ from datetime import datetime
 
 class ExpenseBase(BaseModel):
     description: str
-    amount: condecimal(max_digits=10, decimal_places=2)
+    amount: condecimal(max_digits=10, decimal_places=2) # type: ignore
     category_id: Optional[int]
     expense_date: Optional[datetime]
     
@@ -16,7 +16,7 @@ class ExpenseCreate(ExpenseBase):
 class ExpenseUpdate(BaseModel):
     """Schema for updating an existing expense"""
     description: Optional[str]
-    amount: Optional[condecimal(max_digits=10, decimal_places=2)]
+    amount: Optional[condecimal(max_digits=10, decimal_places=2)] # type: ignore
     category_id: Optional[int]
     expense_date: Optional[datetime]
     
