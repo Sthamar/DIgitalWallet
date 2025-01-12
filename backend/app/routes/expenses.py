@@ -4,9 +4,12 @@ from sqlalchemy.orm import Session
 from typing import List
 from models.expense import Expense
 from models.budget_category import BudgetCategory
+from models.wallet import Wallet
+from models.transaction import Transaction
 from schemas.expenses import ExpenseCreate, ExpenseOut,ExpenseUpdate
 from database import get_db
 from oauth2 import get_current_user
+from core.security import role_required
 
 router = APIRouter(prefix="/expenses", tags=['Expenses'])
 
@@ -16,7 +19,19 @@ def create_expense(expense: ExpenseCreate, db:Session = Depends(get_db), current
         category = db.query(BudgetCategory).filter(BudgetCategory.id == expense.category_id, BudgetCategory.user_id == current_user.id).first()
         if not category:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
-    
+
+        wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+        if not wallet:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wallet not found")
+        
+        if wallet.balance < expense.amount:
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficiant funds")
+        
+        
+        
+        wallet.balance -= expense.amount
+        db.commit()
+            
         new_expense = Expense(
             user_id = current_user.id,
             category_id = expense.category_id,
@@ -28,7 +43,24 @@ def create_expense(expense: ExpenseCreate, db:Session = Depends(get_db), current
     db.add(new_expense)
     db.commit()
     db.refresh(new_expense)
+    
+    new_transaction = Transaction(
+        user_id = current_user.id,
+        transaction_type = "debit",
+        amount = expense.amount,
+        description = f"spent {expense.amount} on {expense.description}"
+    )
+    db.add(new_transaction)
+    db.commit()
     return new_expense
+
+
+@router.get("/admin", response_model=List[ExpenseOut])
+def get_all_users_expenses(current_user:str = Depends(role_required(["admin","auditor"])), db:Session = Depends(get_db)):
+    expenses = db.query(Expense).all()
+    if not expenses:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No expenses found")
+    return expenses
 
 
 @router.get("/", response_model=List[ExpenseOut])
@@ -85,6 +117,16 @@ def update_expense(expense_id: int, expense_update: ExpenseUpdate, db: Session =
 
 
 
+
+
+@router.delete("/admin/{expense_id}")
+def delete_expense_admin(expense_id:int, current_user: str = Depends(role_required(["admin"])), db: Session = Depends(get_db)):
+    expense = db.query(Expense).filter(Expense.id == expense_id).first()
+    if not expense:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No expense found")
+    db.delete(expense)
+    db.commit()
+    return {"data":expense, "message": "deleted successfully"}
 
 
 @router.delete("/{expense_id}")
