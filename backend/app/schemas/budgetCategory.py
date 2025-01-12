@@ -16,6 +16,8 @@ class BudgetCategoryCreate(BaseModel):
 class BudgetCategoryOut(BaseModel):
     id: int
     name: str
+    over_spend: bool
+    remaining_budget: float
     monthly_limit: float
     created_at: datetime
     updated_at: datetime

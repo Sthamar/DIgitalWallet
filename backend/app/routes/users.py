@@ -53,6 +53,7 @@ def delete_user(username:str, current_user: User = Depends(role_required(['admin
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Administrators cannot delete their own account.")
     else:
         db.delete(user)
+        db.flush()
         db.commit()
         return {"message":"user deleted successfully."}
     

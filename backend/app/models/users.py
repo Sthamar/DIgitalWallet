@@ -15,7 +15,7 @@ class User(Base):
     role = Column(Enum("admin","user","auditor", name="user_roles"), default="user")
     
     
-    wallet = relationship("Wallet", back_populates="user", uselist=False)
-    budget_categories = relationship("BudgetCategory", back_populates="user")
-    expenses = relationship("Expense", back_populates="user")
-    transactions = relationship("Transaction", back_populates="user")
+    wallet = relationship("Wallet", back_populates="user", uselist=False, cascade="all, delete-orphan")
+    budget_categories = relationship("BudgetCategory", back_populates="user", cascade="all, delete-orphan")
+    expenses = relationship("Expense", back_populates="user", cascade="all, delete-orphan")
+    transactions = relationship("Transaction", back_populates="user", cascade="all, delete-orphan")

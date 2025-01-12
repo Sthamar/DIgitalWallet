@@ -46,7 +46,19 @@ def get_all_budget_categories(current_user = Depends(get_current_user), db:Sessi
     categories = db.query(BudgetCategory).filter(BudgetCategory.user_id == current_user.id).all()
     if not categories:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No categories found")
-    return categories
+    return [
+        {
+            "id": category.id,
+            "name": category.name,
+            "monthly_limit": category.monthly_limit,
+            "remaining_budget": category.remaining_budget,
+            "over_spend": category.over_spend,
+            "created_at": category.created_at,
+            "updated_at": category.updated_at,
+            
+        }
+        for category in categories
+    ]
 
 
 
@@ -107,6 +119,7 @@ def delete_category_by_admin(category_id:int, current_user: str = Depends(role_r
     if not category:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
     db.delete(category)
+    db.flush()
     db.commit()
     return {"data": category, "message":"deleted successfully"}
     

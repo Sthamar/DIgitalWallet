@@ -1,5 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy import func
+from sqlalchemy import func, and_
+from datetime import datetime
 from sqlalchemy.orm import Session
 from typing import List
 from models.expense import Expense
@@ -13,12 +14,34 @@ from core.security import role_required
 
 router = APIRouter(prefix="/expenses", tags=['Expenses'])
 
+
+def check_budget_limit(category_id, amount, db, current_user):
+    current_month = datetime.now().month
+    current_year = datetime.now().year
+    
+    total_spent = db.query(func.sum(Expense.amount)).filter(Expense.category_id == category_id, 
+                                                            Expense.user_id == current_user.id, 
+                                                            func.extract("month", Expense.expense_date) == current_month,
+                                                            func.extract("year", Expense.expense_date) == current_year).scalar() or 0
+    
+    category = db.query(BudgetCategory).filter(BudgetCategory.id == category_id,
+                                               BudgetCategory.user_id == current_user.id).first()
+    
+    if not category:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No category found")
+    
+    if total_spent + amount > category.monthly_limit:
+        category.over_spend = True
+    else:
+        category.over_spend = False
+    db.commit()
+    
+    
+
 @router.post("/", response_model=ExpenseOut)
 def create_expense(expense: ExpenseCreate, db:Session = Depends(get_db), current_user = Depends(get_current_user)):
     if expense.category_id:
-        category = db.query(BudgetCategory).filter(BudgetCategory.id == expense.category_id, BudgetCategory.user_id == current_user.id).first()
-        if not category:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Category not found")
+        check_budget_limit(expense.category_id, expense.amount, db, current_user)
 
         wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
         if not wallet:
@@ -26,8 +49,6 @@ def create_expense(expense: ExpenseCreate, db:Session = Depends(get_db), current
         
         if wallet.balance < expense.amount:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Insufficiant funds")
-        
-        
         
         wallet.balance -= expense.amount
         db.commit()
