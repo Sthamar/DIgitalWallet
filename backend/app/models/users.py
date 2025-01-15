@@ -12,6 +12,7 @@ class User(Base):
     email = Column(String(100), unique=True, nullable=False )
     full_name = Column(String(100),nullable=False)
     phone = Column(String(15), nullable=False, unique=True)
+    pin = Column(String)
     password_hash = Column(String, nullable=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
     role = Column(Enum("admin","user","auditor", name="user_roles"), default="user")

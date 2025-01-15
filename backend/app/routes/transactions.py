@@ -11,6 +11,7 @@ from typing import List
 from core.security import role_required
 from typing import List
 from core.services import transfer_money
+from core.security import verify_password
 
 
 router = APIRouter(prefix="/transactions", tags=["transactions"])
@@ -58,6 +59,11 @@ def send_money(
     current_user= Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    
+    if not verify_password(transfer_request.pin, current_user.pin):
+        raise HTTPException(status_code=403, detail="Invalid PIN")
+    
+    
     sender_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
     if not sender_wallet:
         raise HTTPException(status_code=404, detail="Sender's wallet not found")

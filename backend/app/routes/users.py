@@ -86,6 +86,15 @@ def update_password(password_data: PasswordUpdate, current_user: User = Depends(
     db.refresh(current_user)
     return {"message": "password updated successfully."}
 
+
+@router.post("/me/set-pin")
+def create_pin(pin:str, current_user:User = Depends(get_current_user), db:Session = Depends(get_db)):
+    if len(pin) != 4 or not pin.isdigit():
+        raise HTTPException(status_code=400, detail="PIN must be a 4-digit number")
+
+    current_user.pin = hash_password(pin)
+    db.commit()
+    return {"detail": "PIN set successfully"}
     
     
            

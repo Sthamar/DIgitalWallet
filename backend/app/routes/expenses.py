@@ -10,7 +10,8 @@ from models.transaction import Transaction
 from schemas.expenses import ExpenseCreate, ExpenseOut,ExpenseUpdate
 from database import get_db
 from oauth2 import get_current_user
-from core.security import role_required
+from core.security import role_required, verify_password
+
 
 router = APIRouter(prefix="/expenses", tags=['Expenses'])
 
@@ -40,9 +41,11 @@ def check_budget_limit(category_id, amount, db, current_user):
 
 @router.post("/", response_model=ExpenseOut)
 def create_expense(expense: ExpenseCreate, db:Session = Depends(get_db), current_user = Depends(get_current_user)):
+    
+    if not verify_password(expense.pin, current_user.pin):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid pin")
     if expense.category_id:
         check_budget_limit(expense.category_id, expense.amount, db, current_user)
-
         wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
         if not wallet:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Wallet not found")

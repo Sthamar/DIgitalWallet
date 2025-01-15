@@ -11,6 +11,7 @@ class ExpenseBase(BaseModel):
     
 class ExpenseCreate(ExpenseBase):
     """Schema for creating a new expense"""
+    pin:str
     pass
 
 class ExpenseUpdate(BaseModel):

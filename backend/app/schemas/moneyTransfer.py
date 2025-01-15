@@ -6,7 +6,7 @@ class MoneyTransferRequest(BaseModel):
     amount: condecimal(max_digits=10, decimal_places=2)
     category_id: int
     description: str
-    
+    pin: str
 
 class MoneyTransferResponse(BaseModel):
     message: str
