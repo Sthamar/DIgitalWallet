@@ -4,6 +4,8 @@ from typing import Optional
 
 class UserCreate(BaseModel):
     username: str
+    full_name: str
+    phone:str
     email: EmailStr
     password: str
     role: Optional[str] = "user"
@@ -12,6 +14,8 @@ class UserCreate(BaseModel):
 class UserOut(BaseModel):
     id: int
     username: str
+    full_name: str
+    phone:str
     email: EmailStr
     role: str
     
@@ -20,6 +24,8 @@ class UserOut(BaseModel):
     
 class UserUpdate(BaseModel):
     username: str
+    full_name: str
+    phone:str
     role: str
     
 class PasswordUpdate(BaseModel):

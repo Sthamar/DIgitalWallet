@@ -18,7 +18,7 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
         if existing_email or existing_username:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="user already exist ")  
         else:
-            db_user = User(username = user.username, email = user.email, password_hash = hashed_password, role = user.role)
+            db_user = User(username = user.username, full_name=user.full_name, phone=user.phone, email = user.email, password_hash = hashed_password, role = user.role)
             db.add(db_user)
             db.commit()
             db.refresh(db_user)
