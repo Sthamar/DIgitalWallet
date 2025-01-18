@@ -49,7 +49,7 @@
             {#if errorMessage}
                 <div class="error">{errorMessage}</div>
             {/if}
-            <div class="card bg-base-100 w-full max-w-sm shrink-0 shadow-2xl">
+            <div class="card bg-base-100 w-full max-w-md shrink-0 shadow-2xl">
                 <form on:submit|preventDefault={handleLogin} class="card-body">
                     <div class="form-control">
                         <label for="username" class="label">Username</label>

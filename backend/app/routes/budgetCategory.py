@@ -41,7 +41,7 @@ def get_all_users_categories(current_user:str = Depends(role_required(["admin","
 
 
 #get all categories of the current user
-@router.get("/", response_model=List[BudgetCategoryOut])
+@router.get("/categories", response_model=List[BudgetCategoryOut])
 def get_all_budget_categories(current_user = Depends(get_current_user), db:Session = Depends(get_db)):
     categories = db.query(BudgetCategory).filter(BudgetCategory.user_id == current_user.id).all()
     if not categories:
@@ -72,7 +72,7 @@ def get_budget_category_by_name(category_name:str, current_user= Depends(get_cur
 
 
 #delete current user category by category name
-@router.delete("/{category_name}")
+@router.delete("/delete/{category_name}")
 def delete_budget_category(category_name: str, current_user=Depends(get_current_user), db:Session = Depends(get_db)):
     category = db.query(BudgetCategory).filter(BudgetCategory.user_id == current_user.id, BudgetCategory.name == category_name).first()
     if category is None:
@@ -85,7 +85,7 @@ def delete_budget_category(category_name: str, current_user=Depends(get_current_
 
 
 #update current user category by category name
-@router.put("/{category_name}", response_model=BudgetCategoryOut)
+@router.put("/update/{category_name}", response_model=BudgetCategoryOut)
 def update_budget_category(category_name:str, category_update: BudgetCategoryUpdate, current_user = Depends(get_current_user), db: Session = Depends(get_db)):
     category = db.query(BudgetCategory).filter(BudgetCategory.user_id == current_user.id, BudgetCategory.name == category_name).first()
     

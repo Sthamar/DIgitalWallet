@@ -10,7 +10,7 @@ class BudgetCategory(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"), index=True)
-    name = Column(String(100), unique=True, nullable=False)
+    name = Column(String(100), nullable=False)
     monthly_limit = Column(Numeric(10, 2), nullable=False)
     over_spend = Column(Boolean, default=False)
     created_at = Column(TIMESTAMP, server_default=func.now())
