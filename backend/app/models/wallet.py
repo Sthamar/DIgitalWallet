@@ -12,6 +12,4 @@ class Wallet(Base):
     updated_at = Column(TIMESTAMP, server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="wallet")
-    sent_transactions = relationship("Transaction", back_populates = "sender_wallet", foreign_keys="[Transaction.sender_wallet_id]")
-    received_transactions = relationship("Transaction", back_populates="receiver_wallet", foreign_keys="[Transaction.receiver_wallet_id]")
     

@@ -23,4 +23,13 @@ class BudgetCategory(Base):
     @property
     def remaining_budget(self):
         total_expenses = sum(expense.amount for expense in self.user.expenses if expense.category_id == self.id)
-        return Decimal(self.monthly_limit) - total_expenses
+        remaining = Decimal(self.monthly_limit) - total_expenses
+        
+        # Update overspend status based on remaining budget
+        self.over_spend = remaining <= 0
+        return remaining
+    
+    # Ensure `over_spend` is saved to the database
+    def save(self, session):
+        session.add(self)
+        session.commit()

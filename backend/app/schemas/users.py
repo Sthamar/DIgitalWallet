@@ -33,3 +33,12 @@ class UserUpdate(BaseModel):
 class PasswordUpdate(BaseModel):
     current_password: str
     new_password: str
+    
+
+class SetPinRequest(BaseModel):
+    pin: str
+    
+    
+class PinOut(BaseModel):
+    pin:str
+    

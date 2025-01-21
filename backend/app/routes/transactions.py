@@ -24,24 +24,37 @@ def get_all_users_transactions(current_user:str = Depends(role_required(["admin"
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No transactions found")
     return transactions
 
-@router.get("/transactions", response_model=List[TransactionOut])
-def get_transactions(
-    db: Session = Depends(get_db),
-    current_user=Depends(get_current_user),
-):
-    user_wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
-    if not user_wallet:
-        raise HTTPException(status_code=404, detail="Wallet not found")
-
-    transactions = db.query(Transaction).filter(
-        (Transaction.sender_wallet_id == user_wallet.id) |
-        (Transaction.receiver_wallet_id == user_wallet.id)
-    ).all()
-
-    if not transactions:
-        raise HTTPException(status_code=404, detail="No transactions found")
-
+@router.get('/transactions/debit-credit', response_model=List[TransactionOut])
+def get_debit_credit_transaction(db:Session = Depends(get_db), current_user = Depends(get_current_user)):
+    transactions = db.query(Transaction).filter(Transaction.transaction_type.in_(['credit','debit'])).all()
+    if transactions is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No transactions found")
     return transactions
+
+
+@router.get('transactions/send', response_model=List[TransactionOut])
+def get_send_transaction(db:Session = Depends(get_db), current_user = Depends(get_current_user)):
+    wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+    if not wallet:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User wallet not found")
+    
+    transactions = db.query(Transaction).filter(Transaction.transaction_type == 'send', wallet.id == Transaction.sender_wallet_id).all()
+    if transactions is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No transactions found")
+    return transactions
+
+@router.get('transactions/received', response_model=List[TransactionOut])
+def get_received_transaction(db:Session = Depends(get_db), current_user = Depends(get_current_user)):
+    wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
+    if not wallet:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User wallet not found")
+    
+    transactions = db.query(Transaction).filter(Transaction.transaction_type == 'receive', Transaction.receiver_wallet_id == wallet.id).all()
+    if transactions is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No transactions found")
+    return transactions
+
+
 
 @router.delete("/admin/{transaction_id}")
 def delete_transaction(transaction_id:int, current_user:str = Depends(role_required(["admin"])), db:Session = Depends(get_db)):

@@ -5,6 +5,7 @@ class WalletAddFunds(BaseModel):
     amount: Decimal
 
 class WalletOut(BaseModel):
+    id:int
     balance: Decimal
     
     class Config:

@@ -86,7 +86,7 @@ def get_all_users_expenses(current_user:str = Depends(role_required(["admin","au
     return expenses
 
 
-@router.get("/", response_model=List[ExpenseOut])
+@router.get("/expenses", response_model=List[ExpenseOut])
 def get_all_expenses(
     start_date: str = None,
     end_date: str = None,
@@ -109,7 +109,7 @@ def get_all_expenses(
 
 
 
-@router.put("/{expense_id}", response_model=ExpenseOut)
+@router.put("/update/{expense_id}", response_model=ExpenseOut)
 def update_expense(expense_id: int, expense_update: ExpenseUpdate, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     expense = db.query(Expense).filter(
         Expense.id == expense_id,
@@ -142,7 +142,7 @@ def update_expense(expense_id: int, expense_update: ExpenseUpdate, db: Session =
 
 
 
-@router.delete("/admin/{expense_id}")
+@router.delete("/admin/delete/{expense_id}")
 def delete_expense_admin(expense_id:int, current_user: str = Depends(role_required(["admin"])), db: Session = Depends(get_db)):
     expense = db.query(Expense).filter(Expense.id == expense_id).first()
     if not expense:
@@ -152,7 +152,7 @@ def delete_expense_admin(expense_id:int, current_user: str = Depends(role_requir
     return {"data":expense, "message": "deleted successfully"}
 
 
-@router.delete("/{expense_id}")
+@router.delete("/delete/{expense_id}")
 def delete_expense(expense_id: int, db: Session = Depends(get_db), current_user = Depends(get_current_user)):
     expense = db.query(Expense).filter(
         Expense.id == expense_id,

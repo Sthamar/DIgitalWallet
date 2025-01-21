@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, status, Depends
 from models.users import User
-from schemas.users import UserCreate, UserOut, UserUpdate, PasswordUpdate
+from schemas.users import UserCreate, UserOut, UserUpdate, PasswordUpdate, SetPinRequest, PinOut
 from database import get_db
 from sqlalchemy.orm import Session
 from typing import List
@@ -25,11 +25,11 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)):
             return db_user
         
         
-@router.get("/{username}", response_model=UserOut)
+@router.get("/user/{username}", response_model=UserOut)
 def get_user_by_username(username: str, db:Session = Depends(get_db)):
     user = db.query(User).filter(User.username == username).first()
     if user is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="user not found.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found.")
     else:
         return user
     
@@ -40,7 +40,7 @@ def get_all_users(
 ):
     users = db.query(User).all()
     if not users:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No users found")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return users
         
         
@@ -88,13 +88,24 @@ def update_password(password_data: PasswordUpdate, current_user: User = Depends(
 
 
 @router.post("/me/set-pin")
-def create_pin(pin:str, current_user:User = Depends(get_current_user), db:Session = Depends(get_db)):
-    if len(pin) != 4 or not pin.isdigit():
+def create_pin(request:SetPinRequest, current_user:User = Depends(get_current_user), db:Session = Depends(get_db)):
+    if len(request.pin) != 4 or not request.pin.isdigit():
         raise HTTPException(status_code=400, detail="PIN must be a 4-digit number")
 
-    current_user.pin = hash_password(pin)
+    current_user.pin = hash_password(request.pin)
     db.commit()
     return {"detail": "PIN set successfully"}
+
+@router.get("/pin", response_model=PinOut)
+def get_pin(current_user:User=Depends(get_current_user), db:Session = Depends(get_db)):
+    user = db.query(User).filter(User.id == current_user.id).first()
+    print(f"Fetching pin for user: {current_user.username}")
+    if not user:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
+    
+    if not user.pin:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="PIN not set for this user")
+    return user
     
     
            
