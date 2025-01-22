@@ -15,6 +15,7 @@
                 <p>{errorMessage}</p>
             {/if}
             <h1 class="text-5xl font-bold m-5">Welcome to Your Digital Wallet</h1>
+            <p class="m-5 text-lg"><strong>Paisa</strong>: Your Money, Your Control, Your Way.</p>
             <p class="m-5">Track your budgets and expenses with ease.</p>
         <div>
             <a href="/budget" class="btn btn-primary">View Budget Categories</a>

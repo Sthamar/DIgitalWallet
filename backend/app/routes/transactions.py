@@ -26,13 +26,13 @@ def get_all_users_transactions(current_user:str = Depends(role_required(["admin"
 
 @router.get('/transactions/debit-credit', response_model=List[TransactionOut])
 def get_debit_credit_transaction(db:Session = Depends(get_db), current_user = Depends(get_current_user)):
-    transactions = db.query(Transaction).filter(Transaction.transaction_type.in_(['credit','debit'])).all()
+    transactions = db.query(Transaction).filter(Transaction.transaction_type.in_(['credit','debit']), Transaction.user_id == current_user.id).all()
     if transactions is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No transactions found")
     return transactions
 
 
-@router.get('transactions/send', response_model=List[TransactionOut])
+@router.get('/transactions/send', response_model=List[TransactionOut])
 def get_send_transaction(db:Session = Depends(get_db), current_user = Depends(get_current_user)):
     wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
     if not wallet:
@@ -43,7 +43,7 @@ def get_send_transaction(db:Session = Depends(get_db), current_user = Depends(ge
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No transactions found")
     return transactions
 
-@router.get('transactions/received', response_model=List[TransactionOut])
+@router.get('/transactions/received', response_model=List[TransactionOut])
 def get_received_transaction(db:Session = Depends(get_db), current_user = Depends(get_current_user)):
     wallet = db.query(Wallet).filter(Wallet.user_id == current_user.id).first()
     if not wallet:

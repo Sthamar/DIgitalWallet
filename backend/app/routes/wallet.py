@@ -47,6 +47,7 @@ def add_funds(data: WalletAddFunds, current_user = Depends(get_current_user), db
     db.refresh(wallet)
     
     new_transaction = Transaction(
+        user_id = current_user.id,
         transaction_type = "credit",
         amount = data.amount,
         description = f"Added {data.amount} to wallet"

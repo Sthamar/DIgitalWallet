@@ -8,6 +8,7 @@ class TransactionOut(BaseModel):
     amount: float
     description: Optional[str]
     transaction_type: str
+    transaction_date: Optional[datetime]
     
     
     class Config:

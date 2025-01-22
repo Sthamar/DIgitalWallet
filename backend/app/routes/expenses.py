@@ -69,6 +69,7 @@ def create_expense(expense: ExpenseCreate, db:Session = Depends(get_db), current
     db.refresh(new_expense)
     
     new_transaction = Transaction(
+        user_id = current_user.id,
         transaction_type = "debit",
         amount = expense.amount,
         description = f"spent {expense.amount} on {expense.description}"
