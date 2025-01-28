@@ -24,6 +24,7 @@ def transfer_money(db: Session, sender_id: int, receiver_wallet_id: int, amount:
 
     # Log sender's transaction
     sender_transaction = Transaction(
+        user_id = sender_id,
         sender_wallet_id=sender_wallet.id,
         receiver_wallet_id=receiver_wallet.id,
         amount=amount,
@@ -34,6 +35,7 @@ def transfer_money(db: Session, sender_id: int, receiver_wallet_id: int, amount:
 
     # Log receiver's transaction
     receiver_transaction = Transaction(
+        user_id = receiver_wallet.user_id,
         sender_wallet_id=sender_wallet.id,
         receiver_wallet_id=receiver_wallet.id,
         amount=amount,

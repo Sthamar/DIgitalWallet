@@ -99,7 +99,6 @@ def create_pin(request:SetPinRequest, current_user:User = Depends(get_current_us
 @router.get("/pin", response_model=PinOut)
 def get_pin(current_user:User=Depends(get_current_user), db:Session = Depends(get_db)):
     user = db.query(User).filter(User.id == current_user.id).first()
-    print(f"Fetching pin for user: {current_user.username}")
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     
