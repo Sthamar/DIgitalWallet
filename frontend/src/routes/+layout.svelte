@@ -3,7 +3,8 @@
     import { page } from '$app/stores';
     import { onMount } from "svelte";
     import { username, apiBaseUrl, user_pin } from "../stores/user";
-
+    import { redirect } from "@sveltejs/kit";
+    
 
     let nav_list_1 = [
         {"item":"Home","link":"/home"},
@@ -21,7 +22,7 @@
     ]
     let errorMessage ="";
 
-
+    const protectedRoutes = ['/home', '/budget', '/expense', '/wallet', '/set-pin'];
 
     function handleLogout(){
         localStorage.removeItem('token');
@@ -77,8 +78,14 @@
 
 
     onMount(async () => {
-        getUsername(),
-        getPin()
+        getUsername();
+        getPin();
+        const token = localStorage.getItem('token');
+        const currentPath = window.location.pathname;
+
+        if (protectedRoutes.includes(currentPath) && !token) {
+            window.location.href = '/login'; // Redirect to login if no token
+        };
     })
     
 </script>

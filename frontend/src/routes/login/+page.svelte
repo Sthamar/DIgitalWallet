@@ -1,5 +1,7 @@
 <script>
+    import { goto } from '$app/navigation';
     import { onMount } from 'svelte';
+    
 
     let username = "";
     let password = "";
@@ -21,8 +23,8 @@
 
         if (res.ok) {
             const data = await res.json();
-            localStorage.setItem('token', data.access_token); // Save token
-            window.location.href = '/budget'; // Redirect on success
+            localStorage.setItem('token', data.access_token); 
+            goto('/budget'); 
         } else {
             const error = await res.json();
             alert(error.detail || "Login failed");
@@ -34,7 +36,6 @@
 }
 
     onMount(() => {
-        // If the user is already logged in, redirect to the budget page
         const token = localStorage.getItem('token');
         if (token) {
             window.location.href = '/budget';
